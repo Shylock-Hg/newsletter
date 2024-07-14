@@ -10,7 +10,7 @@ async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
 }
 
-pub async fn run() -> Result<Server, std::io::Error> {
+pub async fn run(address: &str) -> Result<Server, std::io::Error> {
     let server = HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(greet))
@@ -18,7 +18,7 @@ pub async fn run() -> Result<Server, std::io::Error> {
             .route("/health_check", web::get().to(health_check))
             .route("/{name}", web::get().to(greet))
     })
-    .bind("127.0.0.1:8080")?
+    .bind(address)?
     .run();
     return Ok(server);
 }
