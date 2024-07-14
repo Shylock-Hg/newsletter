@@ -5,7 +5,7 @@ async fn greet(req: HttpRequest) -> impl Responder {
     format!("Hello {}.", name)
 }
 
-async fn health_check(_req: HttpRequest) -> impl Responder {
+async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
 }
 
@@ -21,4 +21,15 @@ async fn main() -> Result<(), std::io::Error> {
     .bind("127.0.0.1:8080")?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_health_check() {
+        let resp = health_check().await;
+        assert!(resp.status().is_success());
+    }
 }
