@@ -4,15 +4,15 @@ mod tests {
 
     const MOCK_SERVER_HOST: &str = "127.0.0.1:8080";
 
-    async fn mock_app() -> Result<(), std::io::Error> {
+    async fn mock_app(
+    ) -> Result<tokio::task::JoinHandle<Result<(), tokio::io::Error>>, std::io::Error> {
         let server = run(MOCK_SERVER_HOST).await?;
-        tokio::spawn(server);
-        Ok(())
+        Ok(tokio::spawn(server))
     }
 
     #[tokio::test]
     async fn test_health_check() {
-        mock_app().await.unwrap();
+        let handle = mock_app().await.unwrap();
 
         let client = reqwest::Client::new();
 
@@ -23,5 +23,9 @@ mod tests {
             .unwrap();
 
         assert!(resp.status().is_success());
+
+        handle.abort();
+
+        let _ = handle.await;
     }
 }
