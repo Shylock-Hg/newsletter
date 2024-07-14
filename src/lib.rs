@@ -1,3 +1,4 @@
+use actix_web::dev::Server;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 
 async fn greet(req: HttpRequest) -> impl Responder {
@@ -9,8 +10,8 @@ async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
 }
 
-pub async fn run() -> Result<(), std::io::Error> {
-    HttpServer::new(|| {
+pub async fn run() -> Result<Server, std::io::Error> {
+    let server = HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(greet))
             // match this first instead of greet
@@ -18,8 +19,8 @@ pub async fn run() -> Result<(), std::io::Error> {
             .route("/{name}", web::get().to(greet))
     })
     .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    .run();
+    return Ok(server);
 }
 
 #[cfg(test)]
